@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,6 +28,7 @@ import com.youth.banner.Banner;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements MainContract.View {
 
@@ -62,7 +64,14 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.e(TAG, "onCreate:重新创建 " + isTaskRoot());
         init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy: 销毁" + isTaskRoot());
     }
 
     @Override
@@ -71,7 +80,21 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         initBannerImages();
     }
 
+    /**
+     * 在activity中调用 moveTaskToBack (boolean nonRoot)方法即可将activity 退到后台，注意不是finish()退出。
+     * 参数说明：
+     * 参数为false——代表只有当前activity是task根，指应用启动的第一个activity时，才有效;
+     * 参数为true——则忽略这个限制，任何activity都可以有效。
+     * 可以解决retrofit2.0+rxjava内存溢出
+     */
+    @Override
+    public void finish() {
+//        super.finish();
+        moveTaskToBack(true);
+    }
+
     private void init() {
+
         presenter = new MainPresenterImpl(this);
         bindView();
         questWeather();
@@ -103,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         forecast_recycler.setLayoutManager(manager);
         forecast_recycler.setAdapter(weatherRVAdapter);
+        locality_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.more_black_24dp, 0);
         locality_listview.setOnItemClickListener(onItemClickListener);
         locality_backup.setOnClickListener(onClickListener);
         locality_text.setOnClickListener(listener);
@@ -146,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            locality_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.less_black_24dp, 0);
             questLocality(2, 2);
         }
     };
@@ -159,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     //显示天气
     private void showWeatherInfo(Weather w) {
+        locality_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.more_black_24dp, 0);
         smartrefreshlayout.finishRefresh();
         locality_linear.setVisibility(View.GONE);
         locality_backup.setVisibility(View.GONE);
@@ -226,4 +252,5 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void onError(Throwable t) {
         Toast.makeText(this, t.getMessage(), Toast.LENGTH_SHORT).show();
     }
+
 }
