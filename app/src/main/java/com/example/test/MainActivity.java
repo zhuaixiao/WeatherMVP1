@@ -64,15 +64,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.e(TAG, "onCreate:重新创建 " + isTaskRoot());
         init();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy: 销毁" + isTaskRoot());
-    }
 
     @Override
     protected void onResume() {
@@ -94,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     private void init() {
-
         presenter = new MainPresenterImpl(this);
         bindView();
         questWeather();
